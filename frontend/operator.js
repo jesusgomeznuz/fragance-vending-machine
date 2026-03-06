@@ -1,9 +1,61 @@
-const inventoryBody = document.getElementById('inventory-body');
+const inventoryList = document.getElementById('inventory-list');
 const modeBadge     = document.getElementById('mode-badge');
 const opStatus      = document.getElementById('op-status');
 const refreshBtn    = document.getElementById('refresh-btn');
 
 let statusTimer = null;
+
+// ── Drag-to-scroll (unifies mouse on Mac and touch on Linux) ──
+//
+// Problem: when pointerdown lands on an unfocused input, the browser
+// captures the drag for text selection instead of scrolling.
+// Fix: prevent default on inputs unless already focused, then scroll
+// the page manually on pointermove.
+//
+(function initDragScroll() {
+  let startY = 0, startScroll = 0, dragging = false, scrolled = false;
+
+  function maxScrollY() {
+    return document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  }
+
+  document.addEventListener('pointerdown', e => {
+    if (e.target.matches('input') && document.activeElement !== e.target) {
+      e.preventDefault(); // blocks drag-select on unfocused input
+    }
+    startY      = e.clientY;
+    startScroll = document.documentElement.scrollTop;
+    dragging    = true;
+    scrolled    = false;
+  }, { passive: false });
+
+  document.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dy = e.clientY - startY;
+    if (Math.abs(dy) > 8) {
+      if (!scrolled) {
+        scrolled = true;
+        // Disable pointer events on inputs while scrolling → no selection highlight
+        document.body.classList.add('is-scrolling');
+      }
+      // Clamp to valid scroll range — prevents bounce/snap to top
+      const clamped = Math.max(0, Math.min(maxScrollY(), startScroll - dy));
+      document.documentElement.scrollTop = clamped;
+    }
+  }, { passive: true });
+
+  function endDrag(e) {
+    document.body.classList.remove('is-scrolling');
+    if (!scrolled && e && e.target && e.target.matches('input')) {
+      e.target.focus();
+      e.target.select();
+    }
+    dragging = false;
+  }
+
+  document.addEventListener('pointerup',     endDrag);
+  document.addEventListener('pointercancel', endDrag);
+})();
 
 // --- Toast ---
 
@@ -33,55 +85,69 @@ async function loadStatus() {
 // --- Inventory ---
 
 async function loadInventory() {
-  inventoryBody.innerHTML = '<tr><td colspan="6" class="loading">Loading…</td></tr>';
+  inventoryList.innerHTML = '<p class="loading">Loading…</p>';
   try {
     const res   = await fetch('/inventory');
     const items = await res.json();
     renderInventory(items);
   } catch {
-    inventoryBody.innerHTML = '<tr><td colspan="6" class="loading">Failed to load inventory.</td></tr>';
+    inventoryList.innerHTML = '<p class="loading">Failed to load inventory.</p>';
   }
 }
 
-function stockClass(qty, type) {
-  return `stock-num ${type}${qty === 0 ? ' zero' : ''}`;
+function stockValueClass(qty, type) {
+  return `op-stock-value ${type}${qty === 0 ? ' zero' : ''}`;
 }
 
 function renderInventory(items) {
   if (!items.length) {
-    inventoryBody.innerHTML = '<tr><td colspan="6" class="loading">No products found.</td></tr>';
+    inventoryList.innerHTML = '<p class="loading">No products found.</p>';
     return;
   }
 
-  inventoryBody.innerHTML = items.map(item => `
-    <tr data-id="${item.id}">
-      <td class="td-name">${item.name}</td>
-      <td class="td-price">$${item.price.toFixed(2)}</td>
-      <td><span class="${stockClass(item.warehouse_ml, 'warehouse')}">${item.warehouse_ml.toFixed(1)} ml</span></td>
-      <td><span class="${stockClass(item.machine_ml,   'machine')}">${item.machine_ml.toFixed(1)} ml</span></td>
+  inventoryList.innerHTML = items.map(item => `
+    <div class="op-card" data-id="${item.id}">
+      <div class="op-card__top">
+        <span class="op-card__name">${item.name}</span>
+        <span class="op-card__price">$${item.price.toFixed(2)}</span>
+      </div>
 
-      <td>
-        <div class="inline-form">
-          <input type="number" min="0.1" step="0.1" value="100" class="purchase-qty" />
-          <button class="btn--purchase" onclick="doPurchase(${item.id}, this)">+ Warehouse</button>
+      <div class="op-card__stock">
+        <div class="op-stock-item">
+          <span class="op-stock-label">Warehouse</span>
+          <span class="${stockValueClass(item.warehouse_ml, 'warehouse')}">${item.warehouse_ml.toFixed(1)} ml</span>
         </div>
-      </td>
+        <div class="op-stock-item">
+          <span class="op-stock-label">Machine</span>
+          <span class="${stockValueClass(item.machine_ml, 'machine')}">${item.machine_ml.toFixed(1)} ml</span>
+        </div>
+      </div>
 
-      <td>
-        <div class="inline-form">
-          <input type="number" min="0.1" step="0.1" value="50" class="transfer-qty" />
-          <button class="btn--transfer" onclick="doTransfer(${item.id}, this)">→ Machine</button>
+      <div class="op-card__actions">
+        <div class="op-action">
+          <label>Add to Warehouse</label>
+          <div class="op-action-row">
+            <input type="number" inputmode="numeric" min="1" step="1" value="100" class="purchase-qty" />
+            <button class="btn--purchase" onclick="doPurchase(${item.id}, this)">+ Add</button>
+          </div>
         </div>
-      </td>
-    </tr>
+        <div class="op-action">
+          <label>Load into Machine</label>
+          <div class="op-action-row">
+            <input type="number" inputmode="numeric" min="1" step="1" value="50" class="transfer-qty" />
+            <button class="btn--transfer" onclick="doTransfer(${item.id}, this)">Load →</button>
+          </div>
+        </div>
+      </div>
+    </div>
   `).join('');
 }
 
 // --- Actions ---
 
 async function doPurchase(productId, btn) {
-  const row = btn.closest('tr');
-  const qty = parseFloat(row.querySelector('.purchase-qty').value);
+  const card = btn.closest('.op-card');
+  const qty = parseFloat(card.querySelector('.purchase-qty').value);
 
   if (!qty || qty <= 0) {
     showStatus('Enter a valid quantity in ml', 'error');
@@ -111,8 +177,8 @@ async function doPurchase(productId, btn) {
 }
 
 async function doTransfer(productId, btn) {
-  const row = btn.closest('tr');
-  const qty = parseFloat(row.querySelector('.transfer-qty').value);
+  const card = btn.closest('.op-card');
+  const qty = parseFloat(card.querySelector('.transfer-qty').value);
 
   if (!qty || qty <= 0) {
     showStatus('Enter a valid quantity in ml', 'error');

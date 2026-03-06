@@ -1,48 +1,77 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+html {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
   background: #0f0f14;
   color: #e8e0d4;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
+/* Hide all scrollbars on the kiosk screen */
+::-webkit-scrollbar { display: none; }
+
+/* Touch optimizations */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.product-card, .btn, .service-zone {
+  touch-action: manipulation; /* eliminates 300ms tap delay, disables double-tap zoom */
+}
+
+.product-card:active {
+  transform: scale(0.96);
+  background: #2a2240;
+}
+
+.btn:not(:disabled):active {
+  transform: scale(0.95);
+  opacity: 0.85;
+}
+
+/* ── Full-screen machine layout (portrait 10:16) ── */
 .machine {
-  background: #1a1a24;
-  border: 1px solid #2e2e40;
-  border-radius: 1.5rem;
+  background: #0f0f14;
   width: 100%;
-  max-width: 640px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
 }
 
 /* Header */
 .machine__header {
   background: linear-gradient(135deg, #2a1a3e, #1a2a3e);
-  padding: 1.5rem 2rem;
+  padding: 2.5vh 2.5vw;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #2e2e40;
+  flex-shrink: 0;
 }
 
 .machine__header h1 {
-  font-size: 1.4rem;
+  font-size: 3vw;
   font-weight: 700;
   letter-spacing: 0.05em;
   color: #d4b896;
 }
 
 .badge {
-  font-size: 0.7rem;
+  font-size: 1.1vw;
   font-weight: 600;
   letter-spacing: 0.1em;
-  padding: 0.25rem 0.6rem;
+  padding: 0.5vh 1vw;
   border-radius: 999px;
   text-transform: uppercase;
 }
@@ -51,31 +80,44 @@ body {
 
 /* Products */
 .machine__products {
-  padding: 1.5rem 2rem 1rem;
+  padding: 2.5vh 2.5vw 1.5vh;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .machine__products h2 {
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
+  font-size: 1.3vw;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #7a7090;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5vh;
+  flex-shrink: 0;
 }
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5vh;
+  flex: 1;
 }
 
 .product-card {
   background: #22222e;
   border: 1px solid #2e2e40;
-  border-radius: 0.75rem;
-  padding: 1rem;
+  border-radius: 1.5vh;
+  padding: 2.5vh 2vw;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, transform 0.1s;
   user-select: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-card:active {
+  transform: scale(0.97);
 }
 
 .product-card:hover {
@@ -86,7 +128,7 @@ body {
 .product-card.selected {
   border-color: #9b72d0;
   background: #2a2240;
-  box-shadow: 0 0 0 2px rgba(155,114,208,0.25);
+  box-shadow: 0 0 0 0.4vh rgba(155,114,208,0.25);
 }
 
 .product-card.out-of-stock {
@@ -95,63 +137,71 @@ body {
 }
 
 .product-card__name {
-  font-size: 0.9rem;
+  font-size: 1.8vw;
   font-weight: 600;
   color: #e8e0d4;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.5vh;
+  line-height: 1.3;
 }
 
 .product-card__price {
-  font-size: 1.1rem;
+  font-size: 3.2vw;
   font-weight: 700;
   color: #d4b896;
 }
 
 .product-card__stock {
-  font-size: 0.72rem;
+  font-size: 1.1vw;
   color: #5a5470;
-  margin-top: 0.3rem;
+  margin-top: 0.5vh;
 }
 
-.loading { color: #5a5470; font-size: 0.9rem; }
+.loading { color: #5a5470; font-size: 1.4vw; }
 
 /* Checkout */
 .machine__checkout {
-  padding: 1rem 2rem;
+  padding: 1.5vh 2.5vw;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5vw;
   border-top: 1px solid #22222e;
+  flex-shrink: 0;
+  background: #13131c;
 }
 
 .selection-info {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.2vh;
 }
 
 .selection-info.hidden { visibility: hidden; }
 
 #selected-name {
-  font-size: 0.85rem;
+  font-size: 1.4vw;
   color: #9a8aaa;
 }
 
 #selected-price {
-  font-size: 1.3rem;
+  font-size: 3vw;
   font-weight: 700;
   color: #d4b896;
 }
 
 .btn {
   border: none;
-  border-radius: 0.6rem;
-  font-size: 0.95rem;
+  border-radius: 1vh;
+  font-size: 1.8vw;
   font-weight: 600;
   cursor: pointer;
-  padding: 0.75rem 2rem;
+  padding: 1.5vh 3vw;
   transition: opacity 0.15s, transform 0.1s;
+}
+
+.btn--sm {
+  font-size: 1.1vw;
+  padding: 0.6vh 1.2vw;
 }
 
 .btn:disabled {
@@ -164,7 +214,7 @@ body {
 .btn--pay {
   background: linear-gradient(135deg, #7a42c8, #4264c8);
   color: #fff;
-  min-width: 140px;
+  min-width: 15vw;
 }
 
 .btn--pay:not(:disabled):hover {
@@ -173,19 +223,20 @@ body {
 
 /* Status */
 .machine__status {
-  padding: 0.75rem 2rem 1.5rem;
+  padding: 1vh 2.5vw 1.5vh;
+  flex-shrink: 0;
 }
 
 .status-box {
   background: #14141e;
   border: 1px solid #22222e;
-  border-radius: 0.6rem;
-  padding: 0.75rem 1rem;
-  font-size: 0.85rem;
-  min-height: 2.5rem;
+  border-radius: 1vh;
+  padding: 1vh 1.5vw;
+  font-size: 1.4vw;
+  min-height: 4vh;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1vw;
   transition: border-color 0.2s;
 }
 
@@ -200,8 +251,9 @@ body {
 .status-box.error   { border-color: #6a2a2a; }
 
 .spinner {
-  width: 14px; height: 14px;
-  border: 2px solid rgba(255,255,255,0.15);
+  width: 1.5vw;
+  height: 1.5vw;
+  border: 0.25vw solid rgba(255,255,255,0.15);
   border-top-color: #9b72d0;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -209,3 +261,33 @@ body {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Service zone (hidden operator access) ── */
+.service-zone {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 6vw;
+  height: 6vw;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  /* DEV: visible border — remove before production */
+  border-top: 0.2vw dashed rgba(155, 114, 208, 0.4);
+  border-left: 0.2vw dashed rgba(155, 114, 208, 0.4);
+}
+
+.service-zone.holding::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-top: 0.3vw solid rgba(155, 114, 208, 0.5);
+  border-right: 0.3vw solid rgba(155, 114, 208, 0.5);
+  border-radius: 0 0 0 0;
+  animation: service-fill 2s linear forwards;
+}
+
+@keyframes service-fill {
+  from { opacity: 0.3; }
+  to   { opacity: 1; }
+}

@@ -1,45 +1,72 @@
-const productGrid  = document.getElementById('product-grid');
-const payBtn       = document.getElementById('pay-btn');
-const statusBox    = document.getElementById('status-box');
+const productGrid   = document.getElementById('product-grid');
+const payBtn        = document.getElementById('pay-btn');
+const statusBox     = document.getElementById('status-box');
 const selectionInfo = document.getElementById('selection-info');
-const selectedName = document.getElementById('selected-name');
+const selectedName  = document.getElementById('selected-name');
 const selectedPrice = document.getElementById('selected-price');
-const modeBadge    = document.getElementById('mode-badge');
+const modeBadge     = document.getElementById('mode-badge');
 
 let selectedProduct = null;
 
-// --- Helpers ---
+// ── Pointer Events: unified tap for mouse (Mac) and touch (Linux) ──
+//
+// tap(el, fn)  — fires fn on press+release without significant movement.
+//   Works identically with mouse and finger, with immediate visual response.
+//
+function tap(el, fn) {
+  let startX = 0, startY = 0, moved = false;
+
+  el.addEventListener('pointerdown', e => {
+    startX = e.clientX;
+    startY = e.clientY;
+    moved  = false;
+    el.setPointerCapture(e.pointerId); // keeps tracking even if pointer leaves element
+  });
+
+  el.addEventListener('pointermove', e => {
+    if (Math.abs(e.clientX - startX) > 12 || Math.abs(e.clientY - startY) > 12) {
+      moved = true;
+    }
+  });
+
+  el.addEventListener('pointerup', e => {
+    if (!moved) fn(e);
+  });
+
+  el.addEventListener('pointercancel', () => { moved = true; });
+}
+
+// ── Helpers ──
 
 function setStatus(message, type = 'idle', loading = false) {
   statusBox.className = 'status-box' + (type !== 'idle' ? ` ${type}` : '');
-  statusBox.innerHTML = (loading ? '<div class="spinner"></div>' : '') +
-    `<p>${message}</p>`;
+  statusBox.innerHTML = (loading ? '<div class="spinner"></div>' : '') + `<p>${message}</p>`;
 }
 
 function formatPrice(p) {
   return `$${Number(p).toFixed(2)}`;
 }
 
-// --- Status / mode badge ---
+// ── Status / mode badge ──
 
 async function loadStatus() {
   try {
-    const res = await fetch('/status');
+    const res  = await fetch('/status');
     const data = await res.json();
     modeBadge.textContent = data.mode;
-    modeBadge.className = 'badge badge--' + data.mode.toLowerCase();
+    modeBadge.className   = 'badge badge--' + data.mode.toLowerCase();
   } catch {
     modeBadge.textContent = 'OFFLINE';
-    modeBadge.className = 'badge badge--production';
+    modeBadge.className   = 'badge badge--production';
   }
 }
 
-// --- Products ---
+// ── Products ──
 
 async function loadProducts() {
   productGrid.innerHTML = '<p class="loading">Loading products…</p>';
   try {
-    const res = await fetch('/products');
+    const res      = await fetch('/products');
     const products = await res.json();
     renderProducts(products);
   } catch {
@@ -67,7 +94,7 @@ function renderProducts(products) {
   `).join('');
 
   productGrid.querySelectorAll('.product-card:not(.out-of-stock)').forEach(card => {
-    card.addEventListener('click', () => selectProduct(card));
+    tap(card, () => selectProduct(card));
   });
 }
 
@@ -81,24 +108,23 @@ function selectProduct(card) {
     price: Number(card.dataset.price),
   };
 
-  selectedName.textContent = selectedProduct.name;
+  selectedName.textContent  = selectedProduct.name;
   selectedPrice.textContent = formatPrice(selectedProduct.price);
   selectionInfo.classList.remove('hidden');
   payBtn.disabled = false;
   setStatus(`Selected: ${selectedProduct.name} — ${formatPrice(selectedProduct.price)}`);
 }
 
-// --- Pay flow ---
+// ── Pay flow ──
 
-payBtn.addEventListener('click', async () => {
-  if (!selectedProduct) return;
+tap(payBtn, async () => {
+  if (!selectedProduct || payBtn.disabled) return;
 
   payBtn.disabled = true;
   setStatus('Processing payment…', 'info', true);
 
   try {
-    // 1. Pay
-    const payRes = await fetch('/pay', {
+    const payRes  = await fetch('/pay', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ product_id: selectedProduct.id }),
@@ -113,8 +139,7 @@ payBtn.addEventListener('click', async () => {
 
     setStatus('Payment accepted! Dispensing…', 'info', true);
 
-    // 2. Dispense
-    const dispRes = await fetch('/dispense', {
+    const dispRes  = await fetch('/dispense', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ product_id: selectedProduct.id }),
@@ -132,16 +157,22 @@ payBtn.addEventListener('click', async () => {
     return;
   }
 
-  // Reset selection after a few seconds
   setTimeout(() => {
     selectedProduct = null;
     selectionInfo.classList.add('hidden');
     payBtn.disabled = true;
     setStatus('Welcome! Select a fragrance to get started.');
-    loadProducts(); // refresh stock counts
+    loadProducts();
   }, 4000);
 });
 
-// --- Init ---
+// ── Service zone (tap → operator panel) ──
+// DEV: instant tap. Before production: restore hold timer + PIN.
+
+tap(document.getElementById('service-zone'), () => {
+  window.location.href = '/operator.html';
+});
+
+// ── Init ──
 loadStatus();
 loadProducts();

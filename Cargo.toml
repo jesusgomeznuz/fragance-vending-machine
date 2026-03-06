@@ -1,5 +1,5 @@
 [workspace]
-members = ["server"]
+members = ["server", "kiosk"]
 resolver = "2"
 
 [package]

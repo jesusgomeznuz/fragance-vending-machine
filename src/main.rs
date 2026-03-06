@@ -5,7 +5,7 @@ mod payment;
 mod sync;
 
 use actix_files as files;
-use actix_web::{web, App, HttpServer};
+use actix_web::{middleware, web, App, HttpServer};
 use rusqlite::Connection;
 use std::sync::{Arc, Mutex};
 
@@ -67,7 +67,12 @@ async fn main() -> std::io::Result<()> {
             .route("/inventory",          web::get().to(api::inventory::get_inventory))
             .route("/inventory/purchase", web::post().to(api::inventory::post_purchase))
             .route("/inventory/transfer", web::post().to(api::inventory::post_transfer))
-            .service(files::Files::new("/", "frontend").index_file("index.html"))
+            .service(
+                web::scope("")
+                    .wrap(middleware::DefaultHeaders::new()
+                        .add(("Cache-Control", "no-store")))
+                    .service(files::Files::new("/", "frontend").index_file("index.html"))
+            )
     })
     .bind("0.0.0.0:8080")?
     .run()

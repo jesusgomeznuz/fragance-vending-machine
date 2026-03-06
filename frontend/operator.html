@@ -4,47 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Operator Panel — Fragrance Vending</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="operator.css" />
+  <link rel="stylesheet" href="operator.css?v=5" />
 </head>
 <body>
   <div class="op-layout">
 
     <header class="op-header">
       <div class="op-header__left">
-        <a href="/" class="op-back">← Customer View</a>
+        <a href="/" class="op-back">← Back</a>
         <h1>Operator Panel</h1>
       </div>
-      <div id="mode-badge" class="badge"></div>
+      <div class="op-header__right">
+        <button class="btn btn--sm" id="refresh-btn">Refresh</button>
+        <div id="mode-badge" class="badge"></div>
+      </div>
     </header>
 
-    <!-- Inventory table -->
-    <section class="op-section">
-      <div class="op-section__title">
-        <h2>Inventory</h2>
-        <button class="btn btn--sm" id="refresh-btn">Refresh</button>
-      </div>
+    <div id="inventory-list" class="inventory-list">
+      <p class="loading">Loading…</p>
+    </div>
 
-      <div class="op-table-wrap">
-        <table class="op-table" id="inventory-table">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Price</th>
-              <th>Warehouse (ml)</th>
-              <th>Machine (ml)</th>
-              <th>Add to Warehouse</th>
-              <th>Load into Machine</th>
-            </tr>
-          </thead>
-          <tbody id="inventory-body">
-            <tr><td colspan="6" class="loading">Loading…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Status -->
     <div id="op-status" class="op-status"></div>
 
   </div>
