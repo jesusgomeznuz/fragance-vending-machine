@@ -1,0 +1,202 @@
+body {
+  align-items: flex-start;
+  padding: 0;
+  background: #0f0f14;
+}
+
+.op-layout {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Header */
+.op-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.op-header__left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.op-header h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #d4b896;
+}
+
+.op-back {
+  font-size: 0.82rem;
+  color: #6a6080;
+  text-decoration: none;
+  border: 1px solid #2e2e40;
+  border-radius: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  transition: color 0.15s, border-color 0.15s;
+}
+.op-back:hover { color: #d4b896; border-color: #5a4a7a; }
+
+/* Section */
+.op-section {
+  background: #1a1a24;
+  border: 1px solid #2e2e40;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.op-section__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #22222e;
+}
+
+.op-section__title h2 {
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7a7090;
+}
+
+/* Table */
+.op-table-wrap {
+  overflow-x: auto;
+}
+
+.op-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.op-table thead th {
+  padding: 0.7rem 1.25rem;
+  text-align: left;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5a5470;
+  border-bottom: 1px solid #22222e;
+  white-space: nowrap;
+}
+
+.op-table tbody tr {
+  border-bottom: 1px solid #1e1e28;
+  transition: background 0.1s;
+}
+
+.op-table tbody tr:last-child { border-bottom: none; }
+.op-table tbody tr:hover { background: #1e1e2c; }
+
+.op-table td {
+  padding: 0.75rem 1.25rem;
+  color: #c8c0d8;
+  vertical-align: middle;
+}
+
+.td-name   { font-weight: 600; color: #e8e0d4; }
+.td-price  { color: #d4b896; font-weight: 600; }
+
+.stock-num {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.stock-num.warehouse { color: #7ab8e8; }
+.stock-num.machine   { color: #7ec850; }
+.stock-num.zero      { color: #5a5470; }
+
+/* Inline action forms */
+.inline-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.inline-form input[type="number"] {
+  width: 72px;
+  background: #14141e;
+  border: 1px solid #2e2e40;
+  border-radius: 0.4rem;
+  color: #e8e0d4;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.inline-form input[type="number"]:focus {
+  outline: none;
+  border-color: #5a4a7a;
+}
+
+/* Buttons */
+.btn--sm {
+  background: #22222e;
+  border: 1px solid #2e2e40;
+  color: #9a8aaa;
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn--sm:hover { background: #2a2a3e; color: #d4b896; }
+
+.btn--purchase {
+  background: #1a2a3e;
+  border: 1px solid #2a4a6a;
+  color: #7ab8e8;
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.btn--purchase:hover { background: #1e3450; }
+
+.btn--transfer {
+  background: #1a3a1a;
+  border: 1px solid #2a5a2a;
+  color: #7ec850;
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.btn--transfer:hover { background: #1e4a1e; }
+
+/* Status toast */
+.op-status {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 280px;
+  max-width: 480px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.6rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 100;
+}
+.op-status.show { opacity: 1; }
+.op-status.success { background: #1a3a1a; border: 1px solid #2a5a2a; color: #7ec850; }
+.op-status.error   { background: #3a1a1a; border: 1px solid #6a2a2a; color: #e05070; }
+.op-status.info    { background: #1a2a3a; border: 1px solid #2a4a6a; color: #7ab8e8; }

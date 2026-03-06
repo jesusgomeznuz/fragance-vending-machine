@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fragrance Vending Machine</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="machine">
+    <header class="machine__header">
+      <h1>Fragrance Vending</h1>
+      <div id="mode-badge" class="badge"></div>
+    </header>
+
+    <section class="machine__products">
+      <h2>Select a Fragrance</h2>
+      <div id="product-grid" class="product-grid">
+        <p class="loading">Loading products…</p>
+      </div>
+    </section>
+
+    <section class="machine__checkout">
+      <div id="selection-info" class="selection-info hidden">
+        <span id="selected-name"></span>
+        <span id="selected-price"></span>
+      </div>
+      <button id="pay-btn" class="btn btn--pay" disabled>Pay Now</button>
+    </section>
+
+    <section class="machine__status">
+      <div id="status-box" class="status-box">
+        <p>Welcome! Select a fragrance to get started.</p>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
