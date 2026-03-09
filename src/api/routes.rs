@@ -100,7 +100,7 @@ pub async fn post_pay(
         }
     };
 
-    if product.stock_ml <= 0.0 {
+    if product.stock_g <= 0.0 {
         return HttpResponse::BadRequest().json(PayResponse {
             success: false,
             message: format!("{} is out of stock", product.name),

@@ -24,7 +24,7 @@ pub struct EventSyncRecord {
 pub struct PurchaseSyncRecord {
     pub local_id:    i64,
     pub product_id:  i64,
-    pub quantity_ml: f64,
+    pub quantity_g: f64,
     pub cost:        Option<f64>,
     pub timestamp:   String,
     pub notes:       String,
@@ -34,7 +34,7 @@ pub struct PurchaseSyncRecord {
 pub struct TransferSyncRecord {
     pub local_id:    i64,
     pub product_id:  i64,
-    pub quantity_ml: f64,
+    pub quantity_g: f64,
     pub timestamp:   String,
     pub notes:       String,
 }
@@ -81,7 +81,7 @@ pub fn init_db(conn: &Connection) -> Result<()> {
             machine_id  INTEGER NOT NULL,
             local_id    INTEGER NOT NULL,
             product_id  INTEGER NOT NULL,
-            quantity_ml REAL    NOT NULL,
+            quantity_g REAL    NOT NULL,
             cost        REAL,
             timestamp   TEXT    NOT NULL,
             notes       TEXT,
@@ -94,7 +94,7 @@ pub fn init_db(conn: &Connection) -> Result<()> {
             machine_id  INTEGER NOT NULL,
             local_id    INTEGER NOT NULL,
             product_id  INTEGER NOT NULL,
-            quantity_ml REAL    NOT NULL,
+            quantity_g REAL    NOT NULL,
             timestamp   TEXT    NOT NULL,
             notes       TEXT,
             received_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -106,7 +106,7 @@ pub fn init_db(conn: &Connection) -> Result<()> {
             machine_id  INTEGER NOT NULL,
             local_id    INTEGER NOT NULL,
             product_id  INTEGER NOT NULL,
-            quantity_ml REAL    NOT NULL,
+            quantity_g REAL    NOT NULL,
             source      TEXT    NOT NULL DEFAULT 'SENSOR',
             timestamp   TEXT    NOT NULL,
             received_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -155,13 +155,13 @@ pub fn store_sync(conn: &Connection, payload: &SyncPayload) -> Result<usize> {
     for purchase in &payload.purchases {
         stored += conn.execute(
             "INSERT OR IGNORE INTO purchases
-                (machine_id, local_id, product_id, quantity_ml, cost, timestamp, notes)
+                (machine_id, local_id, product_id, quantity_g, cost, timestamp, notes)
              VALUES (?, ?, ?, ?, ?, ?, ?)",
             params![
                 payload.machine_id,
                 purchase.local_id,
                 purchase.product_id,
-                purchase.quantity_ml,
+                purchase.quantity_g,
                 purchase.cost,
                 purchase.timestamp,
                 purchase.notes
@@ -172,13 +172,13 @@ pub fn store_sync(conn: &Connection, payload: &SyncPayload) -> Result<usize> {
     for transfer in &payload.transfers {
         stored += conn.execute(
             "INSERT OR IGNORE INTO stock_transfers
-                (machine_id, local_id, product_id, quantity_ml, timestamp, notes)
+                (machine_id, local_id, product_id, quantity_g, timestamp, notes)
              VALUES (?, ?, ?, ?, ?, ?)",
             params![
                 payload.machine_id,
                 transfer.local_id,
                 transfer.product_id,
-                transfer.quantity_ml,
+                transfer.quantity_g,
                 transfer.timestamp,
                 transfer.notes
             ],

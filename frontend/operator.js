@@ -115,11 +115,11 @@ function renderInventory(items) {
       <div class="op-card__stock">
         <div class="op-stock-item">
           <span class="op-stock-label">Warehouse</span>
-          <span class="${stockValueClass(item.warehouse_ml, 'warehouse')}">${item.warehouse_ml.toFixed(1)} ml</span>
+          <span class="${stockValueClass(item.warehouse_g, 'warehouse')}">${item.warehouse_g.toFixed(1)}g</span>
         </div>
         <div class="op-stock-item">
           <span class="op-stock-label">Machine</span>
-          <span class="${stockValueClass(item.machine_ml, 'machine')}">${item.machine_ml.toFixed(1)} ml</span>
+          <span class="${stockValueClass(item.machine_g, 'machine')}">${item.machine_g.toFixed(1)}g</span>
         </div>
       </div>
 
@@ -150,7 +150,7 @@ async function doPurchase(productId, btn) {
   const qty = parseFloat(card.querySelector('.purchase-qty').value);
 
   if (!qty || qty <= 0) {
-    showStatus('Enter a valid quantity in ml', 'error');
+    showStatus('Enter a valid quantity in grams', 'error');
     return;
   }
 
@@ -159,7 +159,7 @@ async function doPurchase(productId, btn) {
     const res  = await fetch('/inventory/purchase', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ product_id: productId, quantity_ml: qty }),
+      body: JSON.stringify({ product_id: productId, quantity_g: qty }),
     });
     const data = await res.json();
 
@@ -181,7 +181,7 @@ async function doTransfer(productId, btn) {
   const qty = parseFloat(card.querySelector('.transfer-qty').value);
 
   if (!qty || qty <= 0) {
-    showStatus('Enter a valid quantity in ml', 'error');
+    showStatus('Enter a valid quantity in grams', 'error');
     return;
   }
 
@@ -190,7 +190,7 @@ async function doTransfer(productId, btn) {
     const res  = await fetch('/inventory/transfer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ product_id: productId, quantity_ml: qty }),
+      body: JSON.stringify({ product_id: productId, quantity_g: qty }),
     });
     const data = await res.json();
 

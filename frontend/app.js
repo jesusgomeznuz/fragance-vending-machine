@@ -196,7 +196,7 @@ async function loadProducts() {
 
 function renderCarousel() {
   carousel.innerHTML = products.map((p, i) => `
-    <div class="product-slide ${p.stock_ml <= 0 ? 'out-of-stock' : ''}"
+    <div class="product-slide ${p.stock_g <= 0 ? 'out-of-stock' : ''}"
          data-idx="${i}"
          style="background-color: #0f0f14;
                 background-image: linear-gradient(to bottom, rgba(10,8,18,0.25) 0%, rgba(10,8,18,0.72) 100%), url('/images/${p.id}.png');
@@ -222,8 +222,8 @@ function openDetail(idx) {
   detailName.textContent  = p.name;
   detailDesc.textContent  = DESCRIPTIONS[p.name] || '';
   detailPrice.textContent = fmt(p.price);
-  detailStock.textContent = p.stock_ml > 0
-    ? `${p.stock_ml.toFixed(1)} ml in machine`
+  detailStock.textContent = p.stock_g > 0
+    ? `${p.stock_g.toFixed(1)}g in machine`
     : 'Out of stock';
 
   showPanel(panelDetail);
