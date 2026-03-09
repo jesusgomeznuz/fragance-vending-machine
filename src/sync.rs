@@ -24,21 +24,21 @@ struct EventSyncRecord {
 
 #[derive(Serialize)]
 struct PurchaseSyncRecord {
-    local_id:    i64,
-    product_id:  i64,
-    quantity_ml: f64,
-    cost:        Option<f64>,
-    timestamp:   String,
-    notes:       String,
+    local_id:   i64,
+    product_id: i64,
+    quantity_g: f64,
+    cost:       Option<f64>,
+    timestamp:  String,
+    notes:      String,
 }
 
 #[derive(Serialize)]
 struct TransferSyncRecord {
-    local_id:    i64,
-    product_id:  i64,
-    quantity_ml: f64,
-    timestamp:   String,
-    notes:       String,
+    local_id:   i64,
+    product_id: i64,
+    quantity_g: f64,
+    timestamp:  String,
+    notes:      String,
 }
 
 #[derive(Serialize)]
@@ -152,7 +152,7 @@ fn fetch_unsynced_sales(conn: &Connection) -> rusqlite::Result<Vec<SaleSyncRecor
 
 fn fetch_unsynced_purchases(conn: &Connection) -> rusqlite::Result<Vec<PurchaseSyncRecord>> {
     let mut stmt = conn.prepare(
-        "SELECT id, product_id, quantity_ml, cost, timestamp, COALESCE(notes, '') AS notes
+        "SELECT id, product_id, quantity_g, cost, timestamp, COALESCE(notes, '') AS notes
          FROM purchases
          WHERE synced_at IS NULL
          ORDER BY id
@@ -160,9 +160,9 @@ fn fetch_unsynced_purchases(conn: &Connection) -> rusqlite::Result<Vec<PurchaseS
     )?;
     stmt.query_map([], |row| {
         Ok(PurchaseSyncRecord {
-            local_id:    row.get(0)?,
-            product_id:  row.get(1)?,
-            quantity_ml: row.get(2)?,
+            local_id:   row.get(0)?,
+            product_id: row.get(1)?,
+            quantity_g: row.get(2)?,
             cost:        row.get(3)?,
             timestamp:   row.get(4)?,
             notes:       row.get(5)?,
@@ -173,7 +173,7 @@ fn fetch_unsynced_purchases(conn: &Connection) -> rusqlite::Result<Vec<PurchaseS
 
 fn fetch_unsynced_transfers(conn: &Connection) -> rusqlite::Result<Vec<TransferSyncRecord>> {
     let mut stmt = conn.prepare(
-        "SELECT id, product_id, quantity_ml, timestamp, COALESCE(notes, '') AS notes
+        "SELECT id, product_id, quantity_g, timestamp, COALESCE(notes, '') AS notes
          FROM stock_transfers
          WHERE synced_at IS NULL
          ORDER BY id
@@ -181,9 +181,9 @@ fn fetch_unsynced_transfers(conn: &Connection) -> rusqlite::Result<Vec<TransferS
     )?;
     stmt.query_map([], |row| {
         Ok(TransferSyncRecord {
-            local_id:    row.get(0)?,
-            product_id:  row.get(1)?,
-            quantity_ml: row.get(2)?,
+            local_id:   row.get(0)?,
+            product_id: row.get(1)?,
+            quantity_g: row.get(2)?,
             timestamp:   row.get(3)?,
             notes:       row.get(4)?,
         })
