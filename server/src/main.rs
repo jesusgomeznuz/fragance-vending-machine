@@ -1,3 +1,4 @@
+use actix_files as files;
 use actix_web::{web, App, HttpServer};
 use rusqlite::Connection;
 use std::sync::{Arc, Mutex};
@@ -35,8 +36,10 @@ async fn main() -> std::io::Result<()> {
                     .json(serde_json::json!({ "error": err.to_string() }));
                 actix_web::error::InternalError::from_response(err, response).into()
             }))
-            .route("/health", web::get().to(api::get_health))
-            .route("/sync",   web::post().to(api::post_sync))
+            .route("/health",  web::get().to(api::get_health))
+            .route("/sync",    web::post().to(api::post_sync))
+            .route("/metrics", web::get().to(api::get_metrics))
+            .service(files::Files::new("/", "server/frontend").index_file("metrics.html"))
     })
     .bind(format!("0.0.0.0:{port}"))?
     .run()

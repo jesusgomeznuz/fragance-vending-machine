@@ -106,10 +106,17 @@ pub fn init_db(conn: &Connection) -> Result<()> {
             mem_available_mb REAL,
             disk_total_gb    REAL,
             disk_used_gb     REAL,
-            uptime_s         REAL
+            uptime_s         REAL,
+            synced_at        DATETIME DEFAULT NULL
         );
         ",
     )?;
+
+    // Migration: add synced_at if table existed before this column was added
+    conn.execute(
+        "ALTER TABLE system_metrics ADD COLUMN synced_at DATETIME DEFAULT NULL",
+        [],
+    ).ok();
 
     seed_if_empty(conn)?;
     Ok(())
