@@ -91,6 +91,23 @@ pub fn init_db(conn: &Connection) -> Result<()> {
             FOREIGN KEY (machine_id) REFERENCES machines(id),
             FOREIGN KEY (product_id) REFERENCES products(id)
         );
+
+        CREATE TABLE IF NOT EXISTS system_metrics (
+            id               INTEGER PRIMARY KEY AUTOINCREMENT,
+            machine_id       INTEGER  NOT NULL,
+            timestamp        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            cpu_temp_c       REAL,
+            cpu_load_1m      REAL,
+            cpu_load_5m      REAL,
+            cpu_load_15m     REAL,
+            cpu_usage_pct    REAL,
+            mem_total_mb     REAL,
+            mem_used_mb      REAL,
+            mem_available_mb REAL,
+            disk_total_gb    REAL,
+            disk_used_gb     REAL,
+            uptime_s         REAL
+        );
         ",
     )?;
 

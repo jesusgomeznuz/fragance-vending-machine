@@ -1,6 +1,7 @@
 mod api;
 mod database;
 mod hardware;
+mod metrics;
 mod payment;
 mod sync;
 
@@ -43,6 +44,9 @@ async fn main() -> std::io::Result<()> {
     log::info!("Sync target: {sync_url} (every 30s)");
     tokio::spawn(sync::start_sync_loop(db.clone(), machine_id, sync_url));
 
+    // --- Background metrics collector ---
+    tokio::spawn(metrics::start_metrics_loop(db.clone(), machine_id));
+
     log::info!("Server listening on http://0.0.0.0:8080");
 
     HttpServer::new(move || {
@@ -67,6 +71,7 @@ async fn main() -> std::io::Result<()> {
             .route("/inventory",          web::get().to(api::inventory::get_inventory))
             .route("/inventory/purchase", web::post().to(api::inventory::post_purchase))
             .route("/inventory/transfer", web::post().to(api::inventory::post_transfer))
+            .route("/metrics",            web::get().to(api::metrics_route::get_metrics))
             .service(
                 web::scope("")
                     .wrap(middleware::DefaultHeaders::new()
