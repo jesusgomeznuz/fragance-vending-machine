@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \":*)",
+      "Bash(ls -la /Users/jesus/fragance-vending-machine/*.db)",
+      "Bash(arp -a)",
+      "Bash(git add src/sync.rs)",
+      "Bash(git push --force)",
+      "Bash(git add:*)",
+      "Bash(cargo build:*)"
+    ],
+    "additionalDirectories": [
+      "/Users/jesus/fragance-vending-machine/esp32"
+    ]
+  }
+}
