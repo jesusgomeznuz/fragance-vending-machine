@@ -80,8 +80,11 @@ fn run_uart_loop(
     loop {
         // ── outbound: dispense command queued by web handler ──────────────
         if rx.try_recv().is_ok() {
-            port.write_all(b"DISPENSE\n")?;
-            log::info!("UART → ESP32: DISPENSE");
+            if let Err(e) = port.write_all(b"DISPENSE\n") {
+                log::warn!("UART write error: {e}");
+            } else {
+                log::info!("UART → ESP32: DISPENSE");
+            }
         }
 
         // ── inbound: read one byte at a time ──────────────────────────────
@@ -106,7 +109,11 @@ fn run_uart_loop(
                     }
                 }
             }
-            Err(e) => return Err(e.into()),
+            Err(e) => {
+                log::warn!("UART read error: {e} — continuing");
+                esp_online.store(false, Ordering::Relaxed);
+                std::thread::sleep(Duration::from_millis(100));
+            }
         }
     }
 }
