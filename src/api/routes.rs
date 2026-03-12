@@ -5,12 +5,14 @@ use std::sync::{Arc, Mutex};
 
 use crate::database::db;
 use crate::hardware::dispenser::Dispenser;
+use crate::hardware::uart::UartHandle;
 use crate::payment::payment_simulator::PaymentSimulator;
 
 pub struct AppState {
     pub db: Arc<Mutex<Connection>>,
     pub simulation_mode: bool,
     pub machine_id: i64,
+    pub uart: Option<Arc<UartHandle>>,
 }
 
 // --- Request / Response types ---
@@ -196,7 +198,16 @@ pub async fn post_dispense(
     )
     .ok();
 
-    let ok = Dispenser::new(data.simulation_mode).dispense(body.product_id);
+    let ok = if let Some(uart) = &data.uart {
+        if uart.is_online() {
+            uart.send_dispense()
+        } else {
+            log::warn!("UART: ESP32 offline, falling back to simulation");
+            Dispenser::new(data.simulation_mode).dispense(body.product_id)
+        }
+    } else {
+        Dispenser::new(data.simulation_mode).dispense(body.product_id)
+    };
 
     if ok {
         db::log_event(

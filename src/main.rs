@@ -12,6 +12,7 @@ use std::sync::{Arc, Mutex};
 
 use api::routes::AppState;
 use database::db::init_db;
+use hardware::uart::start_uart;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -47,6 +48,15 @@ async fn main() -> std::io::Result<()> {
     // --- Background metrics collector ---
     tokio::spawn(metrics::start_metrics_loop(db.clone(), machine_id));
 
+    // --- UART (Pi ↔ ESP32) ---
+    let uart = std::env::var("UART_PORT").ok().map(|port| {
+        log::info!("UART enabled on {port}");
+        std::sync::Arc::new(start_uart(&port))
+    });
+    if uart.is_none() {
+        log::info!("UART disabled (set UART_PORT=/dev/ttyS0 to enable)");
+    }
+
     log::info!("Server listening on http://0.0.0.0:8080");
 
     HttpServer::new(move || {
@@ -54,6 +64,7 @@ async fn main() -> std::io::Result<()> {
             db: db.clone(),
             simulation_mode,
             machine_id,
+            uart: uart.clone(),
         });
 
         App::new()
