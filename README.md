@@ -61,6 +61,7 @@ La máquina sincroniza automáticamente cada 30 segundos.
 | `MACHINE_ID` | `1` | ID numérico de esta máquina |
 | `SYNC_SERVER_URL` | `http://localhost:8081` | URL del servidor central |
 | `MODE` | `SIMULATION` | `SIMULATION` o `PRODUCTION` |
+| `UART_PORT` | *(desactivado)* | Puerto serial del ESP32, e.g. `/dev/ttyAMA0` |
 | `PORT` *(server)* | `8081` | Puerto del servidor central |
 
 **Mac / Linux**
@@ -105,6 +106,44 @@ fragrance-vending-machine/
   frontend/     — UI cliente + panel operador (HTML/CSS/JS)
   database/     — schema SQL de referencia
 ```
+
+## Raspberry Pi (producción)
+
+El servidor corre automáticamente al encender el Pi via systemd.
+
+**Ver logs en tiempo real:**
+```bash
+ssh pi@192.168.1.157
+sudo journalctl -u vending.service -f
+```
+
+**Arrancar/detener manualmente:**
+```bash
+sudo systemctl start vending.service
+sudo systemctl stop vending.service
+```
+
+**Correr con UART y sync (desarrollo):**
+```bash
+SYNC_SERVER_URL=http://192.168.1.131:8081 UART_PORT=/dev/ttyAMA0 cargo run
+```
+
+**Actualizar tras un git pull:**
+```bash
+cargo build --release && sudo systemctl restart vending.service
+```
+
+---
+
+## Kiosk (ventana portrait nativa)
+
+```bash
+cargo run -p kiosk
+```
+
+Abre una ventana portrait apuntando a `http://localhost:8080`.
+
+---
 
 ## Flujo de demo
 
