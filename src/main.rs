@@ -13,6 +13,7 @@ use std::sync::{Arc, Mutex};
 use api::routes::AppState;
 use database::db::init_db;
 use hardware::uart::start_uart;
+use payment::mercadopago::MercadoPagoClient;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -57,6 +58,26 @@ async fn main() -> std::io::Result<()> {
         log::info!("UART disabled (set UART_PORT=/dev/ttyS0 to enable)");
     }
 
+    // --- Mercado Pago ---
+    let mp = if !simulation_mode {
+        match (
+            std::env::var("MP_ACCESS_TOKEN"),
+            std::env::var("MP_TERMINAL_ID"),
+        ) {
+            (Ok(token), Ok(terminal)) => {
+                log::info!("Mercado Pago habilitado | terminal={terminal}");
+                Some(std::sync::Arc::new(MercadoPagoClient::new(token, terminal)))
+            }
+            _ => {
+                log::warn!("PRODUCTION mode pero MP_ACCESS_TOKEN / MP_TERMINAL_ID no están seteados — pagos no disponibles");
+                None
+            }
+        }
+    } else {
+        log::info!("Mercado Pago desactivado (simulation mode)");
+        None
+    };
+
     log::info!("Server listening on http://0.0.0.0:8080");
 
     HttpServer::new(move || {
@@ -65,6 +86,7 @@ async fn main() -> std::io::Result<()> {
             simulation_mode,
             machine_id,
             uart: uart.clone(),
+            mp: mp.clone(),
         });
 
         App::new()
@@ -74,10 +96,11 @@ async fn main() -> std::io::Result<()> {
                     .json(serde_json::json!({ "error": err.to_string() }));
                 actix_web::error::InternalError::from_response(err, response).into()
             }))
-            .route("/status",   web::get().to(api::routes::get_status))
-            .route("/products", web::get().to(api::routes::get_products))
-            .route("/pay",      web::post().to(api::routes::post_pay))
-            .route("/dispense", web::post().to(api::routes::post_dispense))
+            .route("/status",              web::get().to(api::routes::get_status))
+            .route("/products",            web::get().to(api::routes::get_products))
+            .route("/pay",                 web::post().to(api::routes::post_pay))
+            .route("/payment/{order_id}",  web::get().to(api::routes::get_payment_status))
+            .route("/dispense",            web::post().to(api::routes::post_dispense))
             // Operator endpoints
             .route("/inventory",          web::get().to(api::inventory::get_inventory))
             .route("/inventory/purchase", web::post().to(api::inventory::post_purchase))

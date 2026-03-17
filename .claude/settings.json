@@ -7,7 +7,10 @@
       "Bash(git add src/sync.rs)",
       "Bash(git push --force)",
       "Bash(git add:*)",
-      "Bash(cargo build:*)"
+      "Bash(cargo build:*)",
+      "WebFetch(domain:www.mercadopago.com.mx)",
+      "WebFetch(domain:www.mercadopago.com.br)",
+      "WebFetch(domain:www.mercadopago.com.ar)"
     ],
     "additionalDirectories": [
       "/Users/jesus/fragance-vending-machine/esp32"

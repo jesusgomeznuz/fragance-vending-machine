@@ -245,26 +245,35 @@ tap(detailConfirm, () => {
 // ── Payment method panel ──
 
 tap(payBack, () => {
+  stopPolling();
   const idx = products.findIndex(p => p.id === selected.id);
   openDetail(idx);
 });
 
 function startPayment(method) {
   processingLabel.textContent  = method === 'card'
-    ? 'Processing card payment…'
-    : 'Insert cash and press OK…';
+    ? 'Procesando pago con tarjeta…'
+    : 'Inserta efectivo y presiona OK…';
   processingAmount.textContent = fmt(selected.price);
   showPanel(panelProcessing);
-  setStatus('Processing payment…', 'info', true);
+  setStatus('Procesando pago…', 'info', true);
 
-  // Simulate 2s payment delay, then call the backend
-  setTimeout(completePayment, 2000);
+  completePayment();
 }
 
 tap(payCard, () => startPayment('card'));
 tap(payCoin, () => startPayment('coin'));
 
 // ── Payment + dispense ──
+
+let pollInterval = null;
+
+function stopPolling() {
+  if (pollInterval) {
+    clearInterval(pollInterval);
+    pollInterval = null;
+  }
+}
 
 async function completePayment() {
   try {
@@ -274,14 +283,59 @@ async function completePayment() {
       body:    JSON.stringify({ product_id: selected.id }),
     }).then(r => r.json());
 
-    if (!payData.success) {
-      showPanel(null);
-      setStatus(payData.message || 'Payment failed.', 'error');
+    // --- Pago pendiente en terminal MP ---
+    if (payData.pending && payData.order_id) {
+      processingLabel.textContent = '📱 Acerca tu tarjeta o chip a la terminal';
+      setStatus('Esperando pago en terminal…', 'info', true);
+      startPolling(payData.order_id, selected.id);
       return;
     }
 
-    processingLabel.textContent = 'Dispensing…';
+    // --- Simulación: pago inmediato ---
+    if (!payData.success) {
+      showPanel(null);
+      setStatus(payData.message || 'Pago fallido.', 'error');
+      return;
+    }
 
+    await doDispense();
+  } catch {
+    showPanel(null);
+    setStatus('Error de red. Intenta de nuevo.', 'error');
+  }
+}
+
+function startPolling(orderId, productId) {
+  stopPolling();
+  pollInterval = setInterval(async () => {
+    try {
+      const data = await fetch(`/payment/${orderId}?product_id=${productId}`)
+        .then(r => r.json());
+
+      const status = data.status;
+
+      if (status === 'at_terminal') {
+        processingLabel.textContent = '💳 Procesando en terminal…';
+      } else if (status === 'processed') {
+        stopPolling();
+        await doDispense();
+      } else if (status === 'failed' || status === 'expired' || status === 'canceled') {
+        stopPolling();
+        showPanel(null);
+        const msg = status === 'expired'  ? 'Tiempo de pago agotado. Intenta de nuevo.'
+                  : status === 'canceled' ? 'Pago cancelado.'
+                  :                         'Pago rechazado. Intenta con otra tarjeta.';
+        setStatus(msg, 'error');
+      }
+    } catch {
+      // Error de red temporal — seguir intentando
+    }
+  }, 2000);
+}
+
+async function doDispense() {
+  processingLabel.textContent = 'Dispensando…';
+  try {
     const dispData = await fetch('/dispense', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -292,11 +346,11 @@ async function completePayment() {
       openDispense();
     } else {
       showPanel(null);
-      setStatus('Dispensing failed. Please contact support.', 'error');
+      setStatus('Error al dispensar. Contacta al operador.', 'error');
     }
   } catch {
     showPanel(null);
-    setStatus('Network error. Please try again.', 'error');
+    setStatus('Error de red al dispensar.', 'error');
   }
 }
 
