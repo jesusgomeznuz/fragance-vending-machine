@@ -101,6 +101,7 @@ async fn main() -> std::io::Result<()> {
             .route("/pay",                 web::post().to(api::routes::post_pay))
             .route("/payment/{order_id}",  web::get().to(api::routes::get_payment_status))
             .route("/dispense",            web::post().to(api::routes::post_dispense))
+            .route("/webhook/mp",          web::post().to(api::routes::post_webhook_mp))
             // Operator endpoints
             .route("/inventory",          web::get().to(api::inventory::get_inventory))
             .route("/inventory/purchase", web::post().to(api::inventory::post_purchase))

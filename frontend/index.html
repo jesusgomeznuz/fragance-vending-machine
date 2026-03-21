@@ -1,94 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
-  <title>Fragrance Vending Machine</title>
+  <title>PerfumaT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tenor+Sans&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <div class="machine">
     <header class="machine__header">
-      <h1>Fragrance Vending</h1>
-      <div id="mode-badge" class="badge"></div>
+      <span class="brand">PerfumaT</span>
+      <span id="status-dot" class="status-dot"></span>
     </header>
 
     <main class="machine__main">
-      <p class="section-label">Select a Fragrance</p>
       <div class="carousel-wrap">
         <button id="carousel-prev" class="carousel-nav carousel-nav--prev">&#8249;</button>
         <div id="carousel" class="carousel"></div>
         <button id="carousel-next" class="carousel-nav carousel-nav--next">&#8250;</button>
       </div>
+      <div id="dots" class="dots"></div>
     </main>
-
-    <footer class="machine__status">
-      <div id="status-box" class="status-box">
-        <p>Welcome! Select a fragrance to get started.</p>
-      </div>
-    </footer>
   </div>
 
-  <!-- Panel: Product Detail -->
+  <!-- Panel: Detalle del producto -->
   <div id="panel-detail" class="panel">
-    <div id="detail-hero" class="panel-hero panel-hero--img">
-      <h2 id="detail-name" class="panel-hero__name"></h2>
+    <div id="detail-hero" class="panel-hero">
+      <div class="panel-hero__overlay"></div>
+      <div class="panel-hero__content">
+        <h2 id="detail-name" class="panel-hero__name"></h2>
+      </div>
     </div>
     <div class="panel-body">
-      <p  id="detail-desc"  class="detail-desc"></p>
-      <div id="detail-price" class="detail-price"></div>
-      <div id="detail-stock" class="detail-stock"></div>
+      <p id="detail-desc" class="detail-desc"></p>
+      <div class="detail-meta">
+        <div id="detail-price" class="detail-price"></div>
+        <div id="detail-stock" class="detail-stock"></div>
+      </div>
     </div>
     <div class="panel-actions">
-      <button id="detail-back"    class="btn btn--ghost">← Back</button>
-      <button id="detail-confirm" class="btn btn--pay">Select →</button>
+      <button id="detail-back"    class="btn btn--ghost">Volver</button>
+      <button id="detail-confirm" class="btn btn--primary">Comprar</button>
     </div>
   </div>
 
-  <!-- Panel: Payment Method -->
+  <!-- Panel: Método de pago -->
   <div id="panel-payment" class="panel">
-    <div class="panel-hero panel-hero--sm">
-      <p id="pay-name"  class="panel-hero__label"></p>
-      <div id="pay-price" class="panel-hero__price"></div>
+    <div id="pay-hero" class="panel-hero panel-hero--sm">
+      <div class="panel-hero__overlay"></div>
+      <div class="panel-hero__content">
+        <p id="pay-name" class="pay-label"></p>
+        <div id="pay-price" class="pay-price"></div>
+      </div>
     </div>
     <div class="panel-body panel-body--center">
-      <p class="payment-prompt">Choose payment method</p>
+      <p class="payment-heading">Método de pago</p>
       <div class="payment-methods">
-        <button id="pay-card" class="method-btn method-btn--card">
-          <span class="method-icon">&#x1F4B3;</span>
-          <span class="method-label">Card</span>
+        <button id="pay-card" class="method-btn">
+          <div class="method-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="4" width="22" height="16" rx="2"/>
+              <line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+          </div>
+          <span>Tarjeta</span>
         </button>
-        <button id="pay-coin" class="method-btn method-btn--coin">
-          <span class="method-icon">&#x1FA99;</span>
-          <span class="method-label">Cash</span>
+        <button id="pay-coin" class="method-btn method-btn--muted">
+          <div class="method-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v12M9 9h4.5a1.5 1.5 0 0 1 0 3H9a1.5 1.5 0 0 0 0 3H14"/>
+            </svg>
+          </div>
+          <span>Efectivo</span>
         </button>
       </div>
     </div>
     <div class="panel-actions">
-      <button id="payment-back" class="btn btn--ghost">← Back</button>
+      <button id="payment-back" class="btn btn--ghost">Volver</button>
     </div>
   </div>
 
-  <!-- Panel: Processing -->
+  <!-- Panel: Procesando pago -->
   <div id="panel-processing" class="panel">
     <div class="panel-body panel-body--center">
-      <div class="spinner spinner--lg"></div>
-      <p id="processing-label"  class="processing-label">Processing payment…</p>
-      <p id="processing-amount" class="processing-amount"></p>
+      <div class="spinner-ring"></div>
+      <p id="processing-label" class="processing-label"></p>
+      <div id="processing-amount" class="processing-amount"></div>
     </div>
   </div>
 
-  <!-- Panel: Dispense -->
+  <!-- Panel: Dispensado -->
   <div id="panel-dispense" class="panel">
     <div class="panel-body panel-body--center">
-      <div class="dispense-check">&#x2713;</div>
-      <div id="dispense-name"      class="dispense-name"></div>
-      <p                           class="dispense-msg">Press the button on the machine<br>to collect your fragrance</p>
+      <div class="success-mark">
+        <svg viewBox="0 0 52 52" fill="none">
+          <circle class="success-mark__circle" cx="26" cy="26" r="24"
+            stroke="currentColor" stroke-width="1.5"/>
+          <polyline class="success-mark__check"
+            points="14,26 22,34 38,18"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div id="dispense-name" class="dispense-name"></div>
+      <p class="dispense-msg">Tu fragancia está lista.<br>Presiona el botón en la máquina.</p>
       <div id="dispense-countdown" class="dispense-countdown"></div>
     </div>
   </div>
 
-  <!-- Hidden operator access — DEV: dashed border visible; remove before production -->
+  <!-- Zona de servicio oculta -->
   <div id="service-zone" class="service-zone"></div>
 
   <script src="app.js"></script>

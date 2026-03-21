@@ -10,7 +10,9 @@
       "Bash(cargo build:*)",
       "WebFetch(domain:www.mercadopago.com.mx)",
       "WebFetch(domain:www.mercadopago.com.br)",
-      "WebFetch(domain:www.mercadopago.com.ar)"
+      "WebFetch(domain:www.mercadopago.com.ar)",
+      "Bash(gh api:*)",
+      "Bash(curl -s https://raw.githubusercontent.com/anthropics/claude-code/refs/heads/main/plugins/frontend-design/skills/frontend-design/SKILL.md)"
     ],
     "additionalDirectories": [
       "/Users/jesus/fragance-vending-machine/esp32"

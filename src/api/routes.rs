@@ -302,7 +302,7 @@ pub async fn get_payment_status(
         }
     };
 
-    if status == "processed" {
+    if status == "completed" {
         let machine_id = data.machine_id;
         let conn = data.db.lock().unwrap();
 
@@ -337,6 +337,57 @@ pub async fn get_payment_status(
     }
 
     HttpResponse::Ok().json(serde_json::json!({ "status": status }))
+}
+
+/// POST /webhook/mp — recibe notificaciones de Mercado Pago (topic: point_integrations)
+pub async fn post_webhook_mp(
+    data: web::Data<AppState>,
+    body: web::Json<serde_json::Value>,
+) -> impl Responder {
+    let order_id = match body
+        .get("data")
+        .and_then(|d| d.get("id"))
+        .and_then(|id| id.as_str())
+    {
+        Some(id) => id.to_string(),
+        None => {
+            log::warn!("MP webhook: payload sin data.id — {:?}", body);
+            return HttpResponse::Ok().finish(); // siempre 200 a MP
+        }
+    };
+
+    let mp = match &data.mp {
+        Some(mp) => mp.clone(),
+        None => return HttpResponse::Ok().finish(),
+    };
+
+    match mp.get_order_status(&order_id).await {
+        Ok(status) if status == "completed" => {
+            log::info!("MP webhook: pago completado | order_id={order_id}");
+            let machine_id = data.machine_id;
+            let conn = data.db.lock().unwrap();
+            // Registrar venta — product_id se resuelve vía external_reference en el futuro;
+            // por ahora lo marcamos con product_id=0 para no bloquear el flujo.
+            let sale_id = db::record_sale(&conn, 0, machine_id, "SUCCESS", "MERCADO_PAGO").ok();
+            if let Some(sid) = sale_id {
+                db::log_event(
+                    &conn,
+                    machine_id,
+                    "PAYMENT_SUCCESS",
+                    &format!("sale_id={sid} order_id={order_id} method=MERCADO_PAGO via webhook"),
+                )
+                .ok();
+            }
+        }
+        Ok(status) => {
+            log::info!("MP webhook: orden {order_id} status={status}");
+        }
+        Err(e) => {
+            log::error!("MP webhook: error consultando orden {order_id}: {e}");
+        }
+    }
+
+    HttpResponse::Ok().finish()
 }
 
 pub async fn post_dispense(
