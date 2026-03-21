@@ -19,7 +19,8 @@ use payment::mercadopago::MercadoPagoClient;
 async fn main() -> std::io::Result<()> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
-    let simulation_mode = std::env::var("MODE")
+    let force_simulate = std::env::args().any(|a| a == "--simulate");
+    let simulation_mode = force_simulate || std::env::var("MODE")
         .map(|v| v.to_uppercase() == "SIMULATION")
         .unwrap_or(true);
 
