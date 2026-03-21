@@ -1,12 +1,12 @@
 // ─── Fragrance Vending Machine — ESP32 Firmware ───────────────────────────
 // UART2 (GPIO16=RX2, GPIO17=TX2) → Pi
 // UART0 (USB)                    → Serial Monitor / debug
-// GPIO2                          → motor output (transistor → Glade)
+// GPIO18                         → motor output (transistor → Glade)
 // GPIO4                          → LED indicador (cliente ve y presiona botón)
 // GPIO15                         → botón físico del cliente
 // ──────────────────────────────────────────────────────────────────────────
 
-#define MOTOR_PIN      2      // GPIO2 → Base del transistor → botón del Glade
+#define MOTOR_PIN      18     // GPIO18 → Base del transistor → botón del Glade
 #define LED_PIN        4      // GPIO4 → LED indicador para el cliente
 #define BUTTON_PIN     15     // GPIO15 → botón físico del cliente
 #define DISPENSE_MS    200    // pulso corto — el 555 maneja la duración del motor

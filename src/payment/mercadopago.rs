@@ -93,7 +93,7 @@ impl MercadoPagoClient {
             "expiration_time": "PT2M",
             "description": description,
             "transactions": {
-                "payments": [{ "amount": amount }]
+                "payments": [{ "amount": format!("{:.2}", amount) }]
             },
             "config": {
                 "point": {

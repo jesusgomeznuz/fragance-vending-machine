@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Contexto del desarrollador
 
-Al iniciar una sesión, leer `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian Vault/Máquina expendedora.md` para ver el estado actual del proyecto, decisiones tomadas y qué sigue. Al terminar, actualizar esa nota con lo que se avanzó, decidió o quedó pendiente.
+Al iniciar una sesión, leer `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian Vault/Máquina expendedora.md` para ver el estado actual del proyecto, decisiones tomadas y qué sigue. Al terminar, actualizar esa nota con lo que se avanzó, decidió o quedó pendiente. También actualizar `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian Vault/_Estado actual.md` con un resumen de lo que se hizo y qué sigue — ese archivo es el puente entre sesiones de Claude Code.
 
 ## Commands
 
